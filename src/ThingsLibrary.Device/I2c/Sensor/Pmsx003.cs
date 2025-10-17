@@ -1,5 +1,4 @@
 ﻿using Iot.Device.Pmsx003;
-using ThingsLibrary.Device.Sensor.Interfaces;
 
 namespace ThingsLibrary.Device.I2c.Sensor
 {
@@ -92,7 +91,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
         public ParticleState Particles100 { get; init; }
 
 
-        public Pmsx003Sensor(I2cBus i2cBus, int id = Pmsx003.DefaultI2cAddress, string name = "pmsx003", bool isImperial = false) : base(i2cBus, id, name, isImperial)
+        public Pmsx003Sensor(I2cBus i2cBus, int id = Pmsx003.DefaultI2cAddress, string key = "pmsx003", string name = "PMSX003", bool isImperial = false) : base(i2cBus, id, "sensor_pmsx003", key, name, isImperial)
         {
             // States
             this.States = new List<ISensorState>(12)
@@ -116,8 +115,34 @@ namespace ThingsLibrary.Device.I2c.Sensor
                 {   this.Particles100 = new ParticleState("Particles > 10.0 µm", "pm10ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } }
             };
         }
+        public Pmsx003Sensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
+        {
+            if (this.Type != "sensor_pmsx003") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_pmsx003' not '{this.Type}'."); }
+            
+            // States
+            this.States = new List<ISensorState>(12)
+            {   
+                // Standard Concentration States
+                {   this.StandardPm10 = new MassConcentrationState("Standard PM 1.0", "pm3_std", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.StandardPm25 = new MassConcentrationState("Standard PM 2.5", "pm2_5_std", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.StandardPm100 = new MassConcentrationState("Standard PM 10.0", "pm10_std", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                
+                // Environment States 
+                {   this.EnvironmentPm10 = new MassConcentrationState("PM 1.0", "pm1", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.EnvironmentPm25 = new MassConcentrationState("PM 2.5", "pm2_5", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.EnvironmentPm100 = new MassConcentrationState("PM 10.0", "pm10", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                
+                // Particle Counts
+                {   this.Particles03 = new ParticleState("Particles > 0.3 µm", "pm0_3ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles05 = new ParticleState("Particles > 0.5 µm", "pm0_5ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles10 = new ParticleState("Particles > 1.0 µm", "pm1ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles25 = new ParticleState("Particles > 2.5 µm", "pm2_5ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles50 = new ParticleState("Particles > 5.0 µm", "pm5ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles100 = new ParticleState("Particles > 10.0 µm", "pm10ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } }
+            };
+        }
 
-        public override void Init()
+        public override bool Init()
         {
             try
             {
@@ -128,21 +153,24 @@ namespace ThingsLibrary.Device.I2c.Sensor
                 //this.MinReadInterval = (int)Scd4x.MeasurementPeriod.TotalMilliseconds;
                 //if (this.ReadInterval < this.MinReadInterval) { throw new ArgumentException($"Read interval '{this.ReadInterval} ms' can not be less then min read interval '{this.MinReadInterval} ms' of sensor."); }
 
-
                 //TODO:
 
+                this.IsInit = true;
 
-                this.IsEnabled = true;
+                return true;
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_init"] = ex.Message;
+                this.IsDisabled = true; //disable the device
+
+                return false;
             }
         }
 
         public override bool FetchStates()
         {
-            if (!this.IsEnabled) { return false; }
+            if (this.IsDisabled || !this.IsInit) { return false; }
             if (DateTimeOffset.UtcNow < this.NextReadOn) { return false; }
 
             try
@@ -175,7 +203,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_fetch"] = ex.Message;
                 return false;
             }
         }

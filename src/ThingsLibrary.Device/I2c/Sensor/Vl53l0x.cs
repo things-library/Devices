@@ -24,7 +24,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
         /// <summary>
         /// Used for putting the sensors in shutdown mode
         /// </summary>
-        public Vl53l0xSensorGroup SensorGroup { get; set; }
+        //public Vl53l0xSensorGroup SensorGroup { get; set; }
 
         /// <summary>
         /// Distance Measurement
@@ -33,7 +33,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
 
         /// <inheritdoc/>
         /// <remarks>0x77 is default</remarks>
-        public Vl53l0xSensor(I2cBus i2cBus, int id = 0x29, string name = "vl5310x", bool isImperial = false) : base(i2cBus, id, name, isImperial)
+        public Vl53l0xSensor(I2cBus i2cBus, int id = 0x29, string key = "vl53l0x", string name = "VL53L0x", bool isImperial = false) : base(i2cBus, id, "sensor_vl53l0x", key, name, isImperial)
         {
             // States
             this.States = new List<ISensorState>()
@@ -42,7 +42,18 @@ namespace ThingsLibrary.Device.I2c.Sensor
             };
         }
 
-        public override void Init()
+        public Vl53l0xSensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
+        {
+            if (this.Type != "sensor_vl53l0x") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_vl53l0x' not '{this.Type}'."); }
+
+            // States
+            this.States = new List<ISensorState>()
+            {
+                { this.DistanceState = new LengthState("Distance", "d", isImperial: isImperial) }
+            };
+        }
+
+        public override bool Init()
         {
             try
             {
@@ -65,18 +76,22 @@ namespace ThingsLibrary.Device.I2c.Sensor
 
                 //this.Device.StartContinuousMeasurement(10);
 
-                // we must enable for this device to work at all.
-                this.IsEnabled = true;
+                this.IsInit = true;
+
+                return true;
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_init"] = ex.Message;
+                this.IsDisabled = true;
+
+                return false;
             }
         }
 
         public override bool FetchStates()
         {
-            if (!this.IsEnabled) { return false; }
+            if (this.IsDisabled || !this.IsInit) { return false; }
             if (DateTimeOffset.UtcNow < this.NextReadOn) { return false; }
 
             try
@@ -99,7 +114,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_fetch"] = ex.Message;
 
                 return false;
             }

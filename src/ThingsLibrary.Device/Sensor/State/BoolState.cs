@@ -14,12 +14,12 @@
         /// <summary>
         /// Label for the normal / off state
         /// </summary>
-        public string NormalLabel { get; private set; } = "Off";
+        public string NormalLabel { get; set; } = "Off";
 
         /// <summary>
         /// Label for the faulted / on state
         /// </summary>
-        public string FaultedLabel { get; private set; } = "On";
+        public string FaultedLabel { get; set; } = "On";
                 
         /// <summary>
         /// Last State pretty label
@@ -60,11 +60,11 @@
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="id">ID</param>
+        /// <param name="name">ID</param>
         /// <param name="key">Key</param>
         /// <param name="normalLabel">Display label when in the normal state</param>
         /// <param name="faultedLabel">Display label when faulted state</param>
-        public BoolState(string id = "Switch", string key = "sw", string normalLabel = "Off", string faultedLabel = "On") : base(id, key, false)
+        public BoolState(string key = "sw", string name = "Switch", string normalLabel = "Off", string faultedLabel = "On") : base(key, name, false)
         {
             this.NormalLabel = normalLabel;
             this.FaultedLabel = faultedLabel;

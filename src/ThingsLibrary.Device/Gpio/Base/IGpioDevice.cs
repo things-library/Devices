@@ -13,10 +13,15 @@
         /// <summary>
         /// Pin # on the board
         /// </summary>
-        public int Id { get; }
+        public int PinId { get; }
 
         /// <summary>
-        /// Label for the device
+        /// Unique device key
+        /// </summary>
+        public string Key { get; }
+
+        /// <summary>
+        /// Display Name for the device
         /// </summary>
         public string Name { get; }
                 
@@ -33,7 +38,7 @@
         /// <summary>
         /// If the device is currently enabled
         /// </summary>
-        public bool IsEnabled { get; }
+        public bool IsDisabled { get; }
 
         /// <summary>
         /// Is State High

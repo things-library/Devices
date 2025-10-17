@@ -20,7 +20,7 @@
             base.Update(state, updatedOn);
         }
 
-        public TemperatureState(string id = "Temperature", string key = "t", bool isImperial = false) : base(id, key, isImperial)
+        public TemperatureState(string key = "t", string name = "Temperature", bool isImperial = false) : base(key, name, isImperial)
         {
             this.UnitSymbol = (this.IsImperial ? "F" : "C");
             this.ValuePrecision = 1; //78.3f => 783

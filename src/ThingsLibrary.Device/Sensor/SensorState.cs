@@ -1,6 +1,5 @@
 ﻿using SMath = System.Math;
 
-using ThingsLibrary.Device.Sensor.Interfaces;
 using ThingsLibrary.Device.Sensor.Events;
 
 namespace ThingsLibrary.Device.Sensor
@@ -20,12 +19,12 @@ namespace ThingsLibrary.Device.Sensor
         public StateChangedEventHandler StateChanged { get; set; }
 
         #endregion
-
-        /// <inheritdoc />
-        public string Id { get; init; }
-
+                
         /// <inheritdoc />
         public string Key { get; init; }
+
+        /// <inheritdoc />
+        public string Name { get; init; }
 
         /// <inheritdoc />        
         public bool IsImperial { get; init; }
@@ -110,13 +109,14 @@ namespace ThingsLibrary.Device.Sensor
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="id">ID</param>
+        /// <param name="name">ID</param>
         /// <param name="key">Key</param>
         /// <param name="isImperical">Metric or Imperical</param>
-        public SensorState(string id, string key, bool isImperical)
+        public SensorState(string key, string name, bool isImperical)
         {
-            this.Id = id;
             this.Key = key;
+            this.Name = name;
+            
             this.IsImperial = isImperical;
 
             // lets just assume that now is the first we have known about this state (aka: prevent null reference)
@@ -135,7 +135,7 @@ namespace ThingsLibrary.Device.Sensor
         {
             return new Events.StateEvent
             {
-                Id = this.Id,
+                Id = this.Name,
                 Key = this.Key,
                 ValuePrecision = this.ValuePrecision,
 

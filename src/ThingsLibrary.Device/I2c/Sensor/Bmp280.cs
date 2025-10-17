@@ -1,6 +1,6 @@
 ﻿using Iot.Device.Bmxx80;
 using Iot.Device.Bmxx80.FilteringMode;
-using ThingsLibrary.Device.Sensor.Interfaces;
+using Iot.Device.Common;
 
 // https://docs.microsoft.com/en-us/dotnet/iot/tutorials/temp-sensor
 // https://learn.adafruit.com/adafruit-bmp280-barometric-pressure-plus-temperature-sensor-breakout
@@ -17,7 +17,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
 
         /// <inheritdoc/>
         /// <remarks>0x77 is default, 0x76 is secondary</remarks>
-        public Bmp280Sensor(I2cBus i2cBus, int id = 0x77, string name = "bmp280", bool isImperial = false) : base(i2cBus, id, name, isImperial)
+        public Bmp280Sensor(I2cBus i2cBus, int id = 0x77, string key = "bmp280", string name = "BMP280", bool isImperial = false) : base(i2cBus, id, "sensor_bmp280", key, name, isImperial)
         {
             this.MinReadInterval = 7; //157hz = 6.37ms
 
@@ -26,11 +26,27 @@ namespace ThingsLibrary.Device.I2c.Sensor
             {
                 { this.TemperatureState = new TemperatureState(isImperial: isImperial) },
                 { this.PressureState = new PressureState(isImperial: isImperial) },
-                { this.AltitudeState = new LengthState(id: "Altitude", key: "alt", isImperial: isImperial) { IsDisabled = true } }  //typically don't need altitude data
+                { this.AltitudeState = new LengthState(name: "Altitude", key: "alt", isImperial: isImperial) { IsDisabled = true } }  //typically don't need altitude data
             };
         }
 
-        public override void Init()
+        /// <inheritdoc/>        
+        public Bmp280Sensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
+        {
+            if (this.Type != "sensor_bmp280") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_bmp280' not '{this.Type}'."); }
+
+            this.MinReadInterval = 7; //157hz = 6.37ms
+
+            // States
+            this.States = new List<ISensorState>(3)
+            {
+                { this.TemperatureState = new TemperatureState(isImperial: isImperial) },
+                { this.PressureState = new PressureState(isImperial: isImperial) },
+                { this.AltitudeState = new LengthState(name: "Altitude", key: "alt", isImperial: isImperial) { IsDisabled = true } }  //typically don't need altitude data
+            };
+        }
+
+        public override bool Init()
         {
             try
             {
@@ -45,18 +61,25 @@ namespace ThingsLibrary.Device.I2c.Sensor
 
                 this.MinReadInterval = this.Device.GetMeasurementDuration();
 
+                //TODO: fetch a state and make sure we can
+
                 // we must enable for this device to work at all.
-                this.IsEnabled = true;
+                this.IsInit = true;
+
+                return true;
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_init"] = ex.Message;
+                this.IsDisabled = true;
+
+                return false;
             }
         }
 
         public override bool FetchStates()
         {
-            if (!this.IsEnabled) { return false; }
+            if (this.IsDisabled || !this.IsInit) { return false; }
             if (DateTimeOffset.UtcNow < this.NextReadOn) { return false; }
 
             try
@@ -68,7 +91,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
                 var isStateChanged = false;
 
                 // TEMPERATURE
-                if (readResult.Temperature is not null && this.TemperatureState.IsDisabled)
+                if (readResult.Temperature is not null && !this.TemperatureState.IsDisabled)
                 {
                     this.TemperatureState.Update(readResult.Temperature.Value, updatedOn);
                     isStateChanged = true;
@@ -99,9 +122,51 @@ namespace ThingsLibrary.Device.I2c.Sensor
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_fetch"] = ex.Message;
                 return false;
             }
+        }
+
+
+        /// <summary>
+        /// Parse Settings Object
+        /// </summary>
+        /// <param name="i2cBus"></param>
+        /// <param name="key">Unique Key</param>
+        /// <param name="settings"></param>
+        /// <param name="isImperial"></param>
+        /// <returns></returns>
+        public static Bmp280Sensor Parse(I2cBus i2cBus, string key, ItemDto settings, bool isImperial = false)
+        {
+            // Example JSON
+            //{ 
+            //    "name": "BMP280", 
+            //    "type": "sensor_bmp280", 
+            //    "tags":  { 
+            //        "device_id": "77",
+            //        "disabled": "false"
+            //    } 
+            //}
+
+            if (settings.Type != "sensor_bmp280") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_bmp280' not '{settings.Type}'."); }
+
+            // DEVICE ID            
+            int deviceId;
+            if (!int.TryParse(settings["device_id"], out deviceId)) { throw new ArgumentException("Unable to parse 'device_id' to integer."); }
+                        
+            // SENSOR Object
+            var sensor = new Bmp280Sensor(i2cBus, deviceId, key, settings.Name, isImperial)
+            {
+                Tags = settings.Tags,
+                Meta = settings.Meta
+            };
+
+            if (settings.Tags.ContainsKey("disabled"))
+            {
+                sensor.IsDisabled = bool.Parse(settings["disabled"]);
+            }
+
+            return sensor;
         }
     }
 }

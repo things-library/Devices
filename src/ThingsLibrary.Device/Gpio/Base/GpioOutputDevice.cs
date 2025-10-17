@@ -10,23 +10,24 @@
         /// </summary>
         /// <param name="controller"><see cref="GpioController"/></param>
         /// <param name="pinId">Pin Number</param>
+        /// <param name="type">Type of device</param>
+        /// <param name="key">Unique device key</param>
         /// <param name="name">Name of the device</param>
         /// <param name="isNormallyLow">If the device is normally low state</param>
-        public GpioOutputDevice(GpioController controller, ushort pinId, string name, bool isNormallyLow) : base(controller, pinId, name, isNormallyLow)
+        public GpioOutputDevice(GpioController controller, ushort pinId, string type, string key, string name, bool isNormallyLow) : base(controller, pinId, type, key, name, isNormallyLow)
         {           
             //this.IsNormallyLow = isNormallyLow;
         }
 
         /// <summary>
         /// Initialize the device
-        /// </summary>
-        /// <param name="enableDevice"></param>
-        public override void Init(bool enableDevice = true)
+        /// </summary>        
+        public override bool Init()
         {   
             //set pin mode
-            this.Controller.OpenPin(this.Id, PinMode.Output, (this.IsNormallyLow ? PinValue.Low : PinValue.High));
-            
-            this.IsEnabled = enableDevice;
+            this.Controller.OpenPin(this.PinId, PinMode.Output, (this.IsNormallyLow ? PinValue.Low : PinValue.High));
+
+            return true;
         }
 
         /// <summary>
@@ -34,13 +35,13 @@
         /// </summary>
         public virtual void High()
         {
-            if (!this.IsEnabled) { return; }
+            if (!this.IsDisabled) { return; }
             if (this.State == PinValue.High) { return; } //already set
 
-            this.Controller.Write(this.Id, PinValue.High);
+            this.Controller.Write(this.PinId, PinValue.High);
 
             // get the state off the pin
-            this.State = this.Controller.Read(this.Id);
+            this.State = this.Controller.Read(this.PinId);
         }
 
         /// <summary>
@@ -48,13 +49,13 @@
         /// </summary>
         public virtual void Low()
         {
-            if (!this.IsEnabled) { return; }
+            if (!this.IsDisabled) { return; }
             if (this.State == PinValue.Low) { return; } //already set
 
-            this.Controller.Write(this.Id, PinValue.Low);
+            this.Controller.Write(this.PinId, PinValue.Low);
 
             // get the state off the pin
-            this.State = this.Controller.Read(this.Id);
+            this.State = this.Controller.Read(this.PinId);
         }
 
         /// <summary>

@@ -20,7 +20,7 @@
             this.Update(state, updatedOn);
         }
 
-        public LengthState(string id = "Length", string key = "l", bool isImperial = false, byte telemetryScaleFactor = 0) : base(id, key, isImperial)
+        public LengthState(string key = "l", string name = "Length", bool isImperial = false, byte telemetryScaleFactor = 0) : base(key, name, isImperial)
         {
             this.UnitSymbol = (this.IsImperial ? "ft" : "m");
             this.ValuePrecision = (byte)(this.IsImperial ? 2 : 3);

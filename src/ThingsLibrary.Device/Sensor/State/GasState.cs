@@ -19,7 +19,7 @@
         }
 
 
-        public GasState(string id = "Gas", string key = "g", bool isImperial = false) : base(id, key, isImperial)
+        public GasState(string key = "g", string name = "Gas", bool isImperial = false) : base(key, name, isImperial)
         {
             this.UnitSymbol = (this.IsImperial ? "in" : "mb");
         }

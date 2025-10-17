@@ -6,14 +6,14 @@
     public interface ISensorState
     {
         /// <summary>
-        /// Sensor ID
-        /// </summary>
-        public string Id { get; }
-
-        /// <summary>
-        /// Key
+        /// Collection Unique Key
         /// </summary>
         public string Key { get; }
+
+        /// <summary>
+        /// Sensor Display Name
+        /// </summary>
+        public string Name { get; }
 
         /// <summary>
         /// Output Imperial Values?

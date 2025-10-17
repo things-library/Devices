@@ -14,7 +14,7 @@
             base.Update(this.Co2.PartsPerMillion, updatedOn);
         }
 
-        public Co2State(string id = "CO2", string key = "co2", bool isImperial = false) : base(id, key, isImperial)
+        public Co2State(string key = "co2", string name = "CO2", bool isImperial = false) : base(key, name, isImperial)
         {
             this.UnitSymbol = "ppm";
             this.ValuePrecision = 0;

@@ -13,11 +13,8 @@
         public int CoolDownDuration { get; set; }
 
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="pinId"></param>
-        public Relay(GpioController controller, ushort pinId, string name, bool isNormallyHigh) : base(controller, pinId, name, isNormallyHigh)
+        /// <inheritdoc />
+        public Relay(GpioController controller, ushort pinId, string key, string name, bool isNormallyHigh) : base(controller, pinId, "relay", key, name, isNormallyHigh)
         {
             //nothing
         }
@@ -27,10 +24,9 @@
         /// </summary>
         public override void High()
         {
-            if (!this.IsEnabled) { return; }
+            if (!this.IsDisabled) { return; }
             if (this.State == PinValue.High) { return; } //already set
-
-            
+                        
             //unable to do that since we are in cooldown phase?
             if (this.IsNormallyLow && this.CoolDownDuration > 0 && DateTime.UtcNow < this.StateChangedOn.AddMilliseconds(this.CoolDownDuration))
             {
@@ -58,7 +54,7 @@
         /// </summary>
         public override void Low()
         {
-            if (!this.IsEnabled) { return; }
+            if (!this.IsDisabled) { return; }
             if (this.State == PinValue.Low) { return; } //already set
 
             //unable to do that since we are in cooldown phase?

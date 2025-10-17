@@ -1,5 +1,5 @@
-﻿using Iot.Device.Scd4x;
-using ThingsLibrary.Device.Sensor.Interfaces;
+﻿using Iot.Device.Common;
+using Iot.Device.Scd4x;
 
 namespace ThingsLibrary.Device.I2c.Sensor
 {
@@ -17,7 +17,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
         public TemperatureState DewPointState { get; init; }
 
 
-        public Scd40Sensor(I2cBus i2cBus, int id = 0x62, string name = "scd40", bool isImperial = false) : base(i2cBus, id, name, isImperial)
+        public Scd40Sensor(I2cBus i2cBus, int id = 0x62, string key = "scd40", string name = "SCD40", bool isImperial = false) : base(i2cBus, id, "sensor_scd40", key, name, isImperial)
         {
             // States            
             this.States = new List<ISensorState>(5)
@@ -32,7 +32,24 @@ namespace ThingsLibrary.Device.I2c.Sensor
             };
         }
 
-        public override void Init()
+        public Scd40Sensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
+        {
+            if (this.Type != "sensor_scd40") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_scd40' not '{this.Type}'."); }
+
+            // States            
+            this.States = new List<ISensorState>(5)
+            {
+                {   this.Co2State = new Co2State(isImperial: isImperial) },
+                {   this.TemperatureState = new TemperatureState(isImperial: isImperial) },
+                {   this.HumidityState = new HumidityState(isImperial: isImperial)  },
+                
+                // Calculated
+                {   this.HeatIndexState = new TemperatureState("Heat Index", "hx", isImperial: isImperial) { IsDisabled = true } },
+                {   this.DewPointState = new TemperatureState("Dew Point", "dp", isImperial: isImperial) { IsDisabled = true } }
+            };
+        }
+
+        public override bool Init()
         {
             try
             {
@@ -47,17 +64,22 @@ namespace ThingsLibrary.Device.I2c.Sensor
                     //throw new ArgumentException($"Read interval '{this.ReadInterval} ms' can not be less then min read interval '{this.MinReadInterval} ms' of sensor."); }
                 }
 
-                this.IsEnabled = true;
+                this.IsInit = true;
+
+                return true;
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_init"] = ex.Message;
+                this.IsDisabled = true;
+
+                return false;
             }
         }
 
         public override bool FetchStates()
         {
-            if (!this.IsEnabled) { return false; }
+            if (this.IsDisabled || !this.IsInit) { return false; }
             if (DateTimeOffset.UtcNow < this.NextReadOn) { return false; }
 
             try
@@ -116,7 +138,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_fetch"] = ex.Message;
                 return false;
             }
         }

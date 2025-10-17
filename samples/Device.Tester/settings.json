@@ -1,0 +1,46 @@
+{
+  "name": "Panel Service",
+  "type": "panel_service",
+
+  "tags": {
+    "loop_duration": "500"
+  },
+
+  "items": {
+    "sensors": {
+      "type": "sensors",
+      "items": { 
+        "test":          { "name": "TEST Sensor",   "type": "sensor_bool", "tags": { "pin":  "7", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},
+        "front_door":    { "name": "Front Name",    "type": "sensor_bool", "tags": { "pin": "34", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},
+        "pantry_door":   { "name": "Pantry Door",   "type": "sensor_bool", "tags": { "pin": "35", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},
+        "mud_door":      { "name": "Mud Door",      "type": "sensor_bool", "tags": { "pin": "32", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},
+        "deck_door":     { "name": "Deck Door",     "type": "sensor_bool", "tags": { "pin": "33", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},
+        "patio_door":    { "name": "Patio Door",    "type": "sensor_bool", "tags": { "pin": "25", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},
+        "garage_door_1": { "name": "Garage Door 1", "type": "sensor_bool", "tags": { "pin": "27", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},
+        "garage_door_2": { "name": "Garage Door 2", "type": "sensor_bool", "tags": { "pin": "14", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},       
+      
+        "bme688":  { "name": "BME688", "type": "sensor_bme680", "tags": { "device_id": "0x76", "disabled": "false" }},
+        "bmp280":  { "name": "BMP280", "type": "sensor_bmp280", "tags": { "device_id": "0x77", "disabled": "false" }},
+        "sht41":  { "name": "SHT41", "type": "sensor_sht4x", "tags": { "device_id": "0x44", "disabled": "false" }},
+        "scd40":  { "name": "SCD40", "type": "sensor_scd40", "tags": { "device_id": "0x62", "disabled": "false" }}        
+      }
+    },
+    "services": {
+      "type": "services",
+      "items": {        
+        "mqtt": {
+          "tags": {
+            "host": "shirepi.lannings.org",
+            "port": "1883",
+            
+            "user": "mark",
+            "password": "177370"
+          }
+        }
+      }
+    }
+  }
+
+}
+        
+    

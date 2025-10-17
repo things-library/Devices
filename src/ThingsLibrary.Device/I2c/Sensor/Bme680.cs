@@ -1,5 +1,5 @@
 ﻿using Iot.Device.Bmxx80;
-using ThingsLibrary.Device.Sensor.Interfaces;
+using Iot.Device.Common;
 
 // https://learn.adafruit.com/adafruit-bme680-humidity-temperature-barometic-pressure-voc-gas
 
@@ -17,7 +17,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
 
         /// <inheritdoc/>
         /// <remarks>0x76 is default, 0x77 is secondary</remarks>
-        public Bme680Sensor(I2cBus i2cBus, int id = 0x76, string name = "bme680", bool isImperial = false) : base(i2cBus, id, name, isImperial)
+        public Bme680Sensor(I2cBus i2cBus, int id = 0x76, string key = "bme680", string name = "BME680", bool isImperial = false) : base(i2cBus, id, "sensor_bmp680", key, name, isImperial)
         {
             this.MinReadInterval = 7; //157hz = 6.37ms
 
@@ -27,12 +27,31 @@ namespace ThingsLibrary.Device.I2c.Sensor
                 { this.TemperatureState = new TemperatureState(isImperial: isImperial) },
                 { this.HumidityState = new HumidityState(isImperial: isImperial) },
                 { this.PressureState = new PressureState(isImperial: isImperial) },
-                { this.AltitudeState = new LengthState(id: "Altitude", key: "alt", isImperial: isImperial) { IsDisabled = true } }, //typically don't need altitude data
+                { this.AltitudeState = new LengthState(name: "Altitude", key: "alt", isImperial: isImperial) { IsDisabled = true } }, //typically don't need altitude data
                 { this.GasState = new GasState(isImperial: isImperial) }
             };
         }
 
-        public override void Init()
+        /// <inheritdoc/>
+        /// <remarks>0x76 is default, 0x77 is secondary</remarks>
+        public Bme680Sensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
+        {
+            if (this.Type != "sensor_bme680") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_bme680' not '{this.Type}'."); }
+
+            this.MinReadInterval = 7; //157hz = 6.37ms
+
+            // States   
+            this.States = new List<ISensorState>(5)
+            {
+                { this.TemperatureState = new TemperatureState(isImperial: isImperial) },
+                { this.HumidityState = new HumidityState(isImperial: isImperial) },
+                { this.PressureState = new PressureState(isImperial: isImperial) },
+                { this.AltitudeState = new LengthState(name: "Altitude", key: "alt", isImperial: isImperial) { IsDisabled = true } }, //typically don't need altitude data
+                { this.GasState = new GasState(isImperial: isImperial) }
+            };
+        }
+
+        public override bool Init()
         {
             try
             {
@@ -46,20 +65,26 @@ namespace ThingsLibrary.Device.I2c.Sensor
                 //_device.FilterMode = Bmx280FilteringMode.X16;
                 //_device.StandbyTime = StandbyTime.Ms1000;
 
-                //this.MinReadInterval = this.Device.GetMeasurementDuration();
+                //this.MinReadInterval = this.Device.GetMeasurementDuration();                
 
-                // we must enable for this device to work at all.
-                this.IsEnabled = true;
+                //TODO: fetch a state and make sure we can
+
+                this.IsInit = true;
+
+                return true;
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_init"] = ex.Message;
+                this.IsDisabled = true; //disable the device
+
+                return false;
             }
         }
 
         public override bool FetchStates()
         {
-            if (!this.IsEnabled) { return false; }
+            if (this.IsDisabled || !this.IsInit) { return false; }
             if (DateTimeOffset.UtcNow < this.NextReadOn) { return false; }
 
             try
@@ -105,7 +130,6 @@ namespace ThingsLibrary.Device.I2c.Sensor
                     this.AltitudeState.Update(altitude, updatedOn);
                 }
 
-
                 // see if anyone is listening
                 if (isStateChanged)
                 {
@@ -117,7 +141,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_fetch"] = ex.Message;
                 return false;
             }
         }

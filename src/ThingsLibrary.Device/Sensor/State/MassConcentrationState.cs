@@ -19,7 +19,7 @@
         }
 
 
-        public MassConcentrationState(string id = "Particles", string key = "parts", bool isImperial = false) : base(id, key, isImperial)
+        public MassConcentrationState(string key = "parts", string name = "Particles", bool isImperial = false) : base(key, name, isImperial)
         {
             //particles are particles
             this.UnitSymbol = "ppm";

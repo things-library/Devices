@@ -1,5 +1,4 @@
 ﻿using Iot.Device.Sht4x;
-using ThingsLibrary.Device.Sensor.Interfaces;
 
 // https://docs.microsoft.com/en-us/dotnet/iot/tutorials/temp-sensor
 // https://learn.adafruit.com/adafruit-bmp280-barometric-pressure-plus-temperature-sensor-breakout
@@ -15,7 +14,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
 
         /// <inheritdoc/>
         /// <remarks>0x44 is default</remarks>
-        public Sht4xSensor(I2cBus i2cBus, int id = Sht4x.DefaultI2cAddress, string name = "sht4x", bool isImperial = false) : base(i2cBus, id, name, isImperial)
+        public Sht4xSensor(I2cBus i2cBus, int id = Sht4x.DefaultI2cAddress, string key = "sht4x", string name = "SHT4x", bool isImperial = false) : base(i2cBus, id, "sensor_sht4x", key, name, isImperial)
         {
             this.MinReadInterval = 7; //157hz = 6.37ms
 
@@ -27,7 +26,21 @@ namespace ThingsLibrary.Device.I2c.Sensor
             };
         }
 
-        public override void Init()
+        public Sht4xSensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
+        {
+            if (this.Type != "sensor_sht4x") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_sht4x' not '{this.Type}'."); }
+
+            this.MinReadInterval = 7; //157hz = 6.37ms
+
+            // States
+            this.States = new List<ISensorState>(2)
+            {
+                { this.TemperatureState = new TemperatureState(isImperial: isImperial) },
+                { this.HumidityState = new HumidityState(isImperial: isImperial) }
+            };
+        }
+
+        public override bool Init()
         {
             try
             {
@@ -37,18 +50,22 @@ namespace ThingsLibrary.Device.I2c.Sensor
 
                 //this.MinReadInterval = _device.GetMeasurementDuration();
 
-                // we must enable for this device to work at all.
-                this.IsEnabled = true;
+                this.IsInit = true;
+
+                return true;
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_init"] = ex.Message;
+                this.IsDisabled = true;
+
+                return false;
             }
         }
 
         public override bool FetchStates()
         {
-            if (!this.IsEnabled) { return false; }
+            if (this.IsDisabled || !this.IsInit) { return false; }
             if (DateTimeOffset.UtcNow < this.NextReadOn) { return false; }
 
             try
@@ -84,7 +101,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_fetch"] = ex.Message;
 
                 return false;
             }

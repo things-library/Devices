@@ -16,4 +16,10 @@
     <ProjectReference Include="..\..\src\ThingsLibrary.Device\ThingsLibrary.Device.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

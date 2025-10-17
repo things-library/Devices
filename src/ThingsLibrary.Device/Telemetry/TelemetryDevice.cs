@@ -1,22 +1,13 @@
-﻿using ThingsLibrary.DataType;
-using ThingsLibrary.DataType.Events;
-using ThingsLibrary.Device.Gpio;
-using ThingsLibrary.Device.I2c.Base;
+﻿using ThingsLibrary.Schema.Library.Telemetry;
 
 namespace ThingsLibrary.Device.Telemetry
 {
     public class TelemetryDevice
     {
-
-        /// <summary>
-        /// Various simple Trigger sensors like motion, break glass, magnetic door
-        /// </summary>
-        public List<BoolSensor> BoolSensors { get; set; }
-
         /// <summary>
         /// I2C Bus Sensors such as humidit, pressure, gas, pressure, voc, nox, 
         /// </summary>
-        public List<I2cSensor> Sensors { get; set; }
+        public List<ISensor> Sensors { get; set; }
 
 
         public int UpdateInterval { get; set; }
@@ -34,7 +25,7 @@ namespace ThingsLibrary.Device.Telemetry
         /// <summary>
         /// List of events that have occured
         /// </summary>
-        public Queue<TelemetryEvent> Events { get; set; } = new Queue<TelemetryEvent>();
+        public Queue<TelemetryEventDto> Events { get; set; } = new Queue<TelemetryEventDto>();
 
         /// <summary>
         /// Clear all Telemetry Events, if date provided it will clear all older than the provided date
@@ -47,7 +38,7 @@ namespace ThingsLibrary.Device.Telemetry
                 for (int i = 0; i < this.Events.Count; i++)
                 {
                     // all done?
-                    if (this.Events.Peek().Timestamp >= expirationDate) { return; }
+                    if (this.Events.Peek().Date >= expirationDate) { return; }
 
                     // remove the item off the top
                     this.Events.Dequeue();

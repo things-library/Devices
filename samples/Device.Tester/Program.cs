@@ -1,17 +1,24 @@
-﻿using System.Device.Gpio;
-using System.Device.I2c;
+﻿using Iot.Device.Board;
 
 using Iot.Device.Ft232H;
-using Iot.Device.Board;
+using Iot.Device.Mcp23xxx;
 
-using Ft = Iot.Device.FtCommon;
+using System.Device.Gpio;
+using System.Device.I2c;
+using System.Text.Json;
 
 using ThingsLibrary.DataType.Extensions;
+
 using ThingsLibrary.Device.Gpio;
 using ThingsLibrary.Device.I2c;
 using ThingsLibrary.Device.I2c.Base;
+using ThingsLibrary.Device.Sensor;
 using ThingsLibrary.Device.Sensor.Events;
-using Iot.Device.Mcp23xxx;
+
+using ThingsLibrary.Schema.Library;
+using ThingsLibrary.Schema.Library.Base;
+using ThingsLibrary.Schema.Library.Interfaces;
+using Ft = Iot.Device.FtCommon;
 
 namespace Device.Tester
 {
@@ -28,6 +35,10 @@ namespace Device.Tester
             Log.Information("Getting GPIO Controller devices...");
             var devices = Ft.FtCommon.GetDevices();
 
+            Log.Information("Loading Settings...");
+            var settings = GetSettings();
+
+
             if (devices.Any())
             {
                 foreach (var device in devices)
@@ -43,34 +54,96 @@ namespace Device.Tester
 
             // pick just the first one
             var ftDevice = new Ft232HDevice(devices.First());
-
+            
             var gpioController = ftDevice.CreateGpioController();
             //GpioTests(gpioController);
 
             var i2cBus = ftDevice.CreateOrGetI2cBus(0);
             I2cBusScan(i2cBus);
+            
+            var sensors = Sensors.Parse(gpioController, i2cBus, settings.Items["sensors"].Items.ToDictionary(x => x.Key, x => (IItemDto)x.Value));
+            TestSensors(sensors);
 
-            McpTests(i2cBus, gpioController);
+            //McpTests(i2cBus, gpioController);
             
             //I2cTests(i2cBus);
         }
 
+        public static RootItemDto GetSettings()
+        {
+            if (!File.Exists("settings.json")) { throw new ArgumentException("Unable to find settings-debug.json"); }
+
+            var json = File.ReadAllText("settings.json");
+            var settings = JsonSerializer.Deserialize<RootItemDto>(json, SchemaBase.JsonSerializerOptions) ?? throw new ArgumentException("Unable to deserialize options");
+
+            return settings;
+        }
+
+        
+
+        public static void TestSensors(Dictionary<string, ISensor> sensors)
+        {
+            Log.Information("================================================================================");
+            Log.Information("Sensor Initialization...");
+
+            foreach (var sensor in sensors.Values)
+            {
+                if (sensor.IsDisabled) 
+                {
+                    Log.Information($"+ {sensor.Name}: Disabled");
+                    continue; 
+                }
+
+                // try to initialize
+                if (sensor.Init())
+                {
+                    Log.Information($"+ {sensor.Name}: Initialized");
+                }
+                else
+                {
+                    Log.Information($"- {sensor.Name}: {sensor["$error_init", true]}");
+                }
+            }
+
+            Log.Information("================================================================================");
+            Log.Information("Sensor Loop...");
+            // DO SENSOR LOOP
+            while (true)
+            {
+                foreach (var sensor in sensors.Values)
+                {
+                    if (sensor.IsDisabled || !sensor.IsInit) { continue; }
+
+                    sensor.FetchStates();
+
+                    Log.Information($"{sensor.ToTelemetryEvent(sensor.Key)}");
+                }
+
+                Thread.Sleep(2000);
+                Log.Information("================================================================================");
+            }
+        }
+
         public static void I2cBusScan(I2cBus i2cBus)
         {
+            //====================================================
+            // I2C BUS SCAN (hex values)
+            //====================================================
+            //     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+            //00: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+            //10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+            //20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+            //30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+            //40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+            //50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+            //60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+            //70: -- -- -- -- -- -- 76 77 -- -- -- -- -- -- -- --
+            //====================================================
+
             var results = i2cBus.PerformBusScan();
 
-            //    0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-            //00: -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-            //10: -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-            //20: 20 21 22 23 24 25 26 27 -  -  -  -  -  -  -  -
-            //30: 30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f
-            //40: -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-            //50: -  51 -  -  -  -  -  -  -  -  -  -  -  -  5d -
-            //60: -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-            //70: -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-
             Console.WriteLine("====================================================");
-            Console.WriteLine(" I2C BUS SCAN");
+            Console.WriteLine(" I2C BUS SCAN (hex values)");
             Console.WriteLine("====================================================");
             Console.WriteLine("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
 
@@ -90,7 +163,6 @@ namespace Device.Tester
                     {
                         Console.Write("-- ");
                     }
-
                 }
 
                 Console.WriteLine("");
@@ -102,7 +174,7 @@ namespace Device.Tester
         public static void GpioTests(GpioController gpioController)
         {
             var sensors = new List<BoolSensor>();
-            sensors.Add(new BoolSensor(gpioController, 0, "Motion", false));
+            sensors.Add(new BoolSensor(gpioController, 0, "motion", "Motion", false));
 
             Log.Information("Initializing {SensorCount} Sensors...", sensors.Count);
 
@@ -117,13 +189,13 @@ namespace Device.Tester
 
             Log.Information("================================================================================");
             Log.Information("Reading Sensor Telemetry...");
-                        
+
             // DO SENSOR LOOP
             while (true)
             {
                 foreach (var sensor in sensors)
                 {
-                    if (!sensor.IsEnabled)
+                    if (!sensor.IsDisabled)
                     {
                         Log.Information($"{sensor.Name}: Not Enabled");
                         continue;
@@ -341,10 +413,10 @@ namespace Device.Tester
             // show any errors 
             foreach (var sensor in sensors)
             {
-                if (sensor.IsEnabled) { continue; }
-                if (string.IsNullOrEmpty(sensor.ErrorMessage)) { continue; }
+                if (sensor.IsDisabled) { continue; }
+                if (!sensor.Meta.ContainsKey("$error_init")) { continue; }
 
-                Log.Information($"{sensor.Name}: {sensor.ErrorMessage} (Not Enabled)");
+                Log.Information($"{sensor.Name}: {sensor["$error_init"]} (Not Initialized)");
             }
 
             Log.Information("================================================================================");
@@ -355,12 +427,12 @@ namespace Device.Tester
             {
                 foreach (var sensor in sensors)
                 {                    
-                    if (!sensor.IsEnabled) { continue; }
+                    if (!sensor.IsDisabled) { continue; }
 
                     if (sensor.FetchStates())
                     {
                         //Log.Information($"{sensor.Name}:");
-                        Log.Information(sensor.ToTelemetryString());                        
+                        //Log.Information(sensor.ToTelemetryString());                        
                     }
                 }
 

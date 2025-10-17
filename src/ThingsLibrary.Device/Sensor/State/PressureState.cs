@@ -21,7 +21,7 @@
         }
 
 
-        public PressureState(string id = "Pressure", string key = "p", bool isImperial = false) : base(id, key, isImperial)
+        public PressureState(string key = "p", string name = "Pressure", bool isImperial = false) : base(key, name, isImperial)
         {
             this.UnitSymbol = (this.IsImperial ? "inHg" : "mb");
 

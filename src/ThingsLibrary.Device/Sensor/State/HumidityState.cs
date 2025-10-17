@@ -19,7 +19,7 @@
         }
 
 
-        public HumidityState(string id = "Humidity", string key = "h", bool isImperial = false) : base(id, key, isImperial)
+        public HumidityState(string key = "h", string name = "Humidity", bool isImperial = false) : base(key, name, isImperial)
         {
             this.UnitSymbol = "%";
             this.ValuePrecision = 1;

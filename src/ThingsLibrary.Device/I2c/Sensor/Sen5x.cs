@@ -62,7 +62,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
         public HumidityState HumidityState { get; init; }
 
 
-        public Sen5xSensor(I2cBus i2cBus, int id = Sen5x.DefaultI2cAddress, string name = "sen5x", bool isImperial = false) : base(i2cBus, id, name, isImperial)
+        public Sen5xSensor(I2cBus i2cBus, int id = Sen5x.DefaultI2cAddress, string key = "sen5x", string name = "SEN5x", bool isImperial = false) : base(i2cBus, id, "sensor_sen5x", key, name, isImperial)
         {
             // States
             this.States = new List<ISensorState>(8)
@@ -80,7 +80,27 @@ namespace ThingsLibrary.Device.I2c.Sensor
             };
         }
 
-        public override void Init()
+        public Sen5xSensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
+        {
+            if (this.Type != "sensor_sen5x") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_sen5x' not '{this.Type}'."); }
+
+            // States
+            this.States = new List<ISensorState>(8)
+            {
+                {   this.Pm1 = new MassConcentrationState("PM 1.0", "pm1", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
+                {   this.Pm2_5 = new MassConcentrationState("PM 2.5", "pm2_5", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
+                {   this.Pm4 = new MassConcentrationState("PM 4.0", "pm4", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
+                {   this.Pm10 = new MassConcentrationState("PM 10.0", "pm10", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" } },
+
+                {   this.VocIndex = new ParticleState("VOC", "voc", isImperial: isImperial) { UnitSymbol = string.Empty } },
+                {   this.NoxIndex = new ParticleState("NOx", "nox", isImperial: isImperial) { UnitSymbol = string.Empty } },
+
+                {   this.TemperatureState = new TemperatureState(isImperial: isImperial) },
+                {   this.HumidityState = new HumidityState(isImperial: isImperial) },
+            };
+        }
+
+        public override bool Init()
         {
             try
             {
@@ -90,24 +110,29 @@ namespace ThingsLibrary.Device.I2c.Sensor
 
                 this.Device.StartMeasurement();
 
-                this.IsEnabled = true;
+                this.IsInit = true;
+
+                return true;
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                this.Meta["$error_init"] = ex.Message;
+                this.IsDisabled = true;
+
+                return false;
             }
         }
 
         public override bool FetchStates()
         {
-            if (!this.IsEnabled) { return false; }
+            if (this.IsDisabled || !this.IsInit) { return false; }
             if (DateTimeOffset.UtcNow < this.NextReadOn) { return false; }
 
             try
             {
                 if (!this.Device.ReadDataReadyFlag())
                 {
-                    this.ErrorMessage = "Data Not Ready!";
+                    this.Meta["$error_fetch"] = "Data Not Ready!";
                     return false;
                 }
 
@@ -129,15 +154,14 @@ namespace ThingsLibrary.Device.I2c.Sensor
 
                 // see if anyone is listening
                 this.StatesChanged?.Invoke(this, this.States);
-
+                                
                 // if we get here the state has changed
                 return true;
 
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
-
+                this.Meta["$error_fetch"] = ex.Message;
                 return false;
             }
         }

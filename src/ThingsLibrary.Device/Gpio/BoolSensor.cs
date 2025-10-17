@@ -49,7 +49,7 @@
 
         /// <inheritdoc />        
         //public DateTimeOffset StateChangedOn => this.BoolState.StateChangedOn;
-
+         
         /// <inheritdoc />        
         public TimeSpan StateDuration() => this.BoolState.StateDuration();  //technically calculated but basically a property
 
@@ -64,24 +64,34 @@
         /// </summary>
         /// <param name="controller"><see cref="GpioController"/></param>
         /// <param name="pinId">Board Pin ID</param>
+        /// <param name="key">Unique key value</param>
+        /// <param name="displayName">Display Name</param>
         /// <param name="isPullUp">If a pull up resistor should be used. False = pull down resistor, null = floating</param>
-        public BoolSensor(GpioController controller, ushort pinId, string name, bool? isPullUp) : base(controller, pinId, name, isPullUp)
+        public BoolSensor(GpioController controller, ushort pinId, string key, string displayName, bool? isPullUp) : base(controller, pinId, "sensor_bool", key, displayName, isPullUp)
         {
+            this.Key = key;
+
             // bool sensor specific
             this.IsNormallyLow = !this.IsPullUp;
 
             // States            
             this.States = new List<ISensorState>(1) { { this.BoolState } };
+        }
 
-            // try to hook up the event callbacks for state changes
-            try
-            {
-                this.Controller.RegisterCallbackForPinValueChangedEvent(this.Id, PinEventTypes.None, this.ValueChanged);
-            }
-            catch (NotImplementedException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+        public BoolSensor(GpioController controller, string key, IItemDto settings) : base(controller, key, settings)
+        {
+            if (this.Type != "sensor_bool") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_bool' not '{this.Type}'."); }
+            
+            // bool sensor specific
+            this.IsNormallyLow = !this.IsPullUp;
+
+            // States            
+            this.States = new List<ISensorState>(1) { { this.BoolState } };
+        }
+
+        public void EnableEventCallback()
+        {
+            this.Controller.RegisterCallbackForPinValueChangedEvent(this.PinId, PinEventTypes.None, this.ValueChanged);
         }
 
         /// <summary>
@@ -107,10 +117,12 @@
         /// <returns>True if successful</returns>
         public bool FetchStates()
         {
+            if (this.IsDisabled || !this.IsInit) { return false; }
+
             try
             {
                 // get the state off the pin
-                var state = this.Controller.Read(this.Id);
+                var state = this.Controller.Read(this.PinId);
 
                 this.UpdateState(state);
 
@@ -118,8 +130,7 @@
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
-
+                this.Meta["$error_fetch"] = ex.Message;                
                 return false;
             }
         }
@@ -136,7 +147,7 @@
             this.State = state;
             
             // throw events if we are enabled
-            if (!this.IsEnabled) { return; }
+            if (!this.IsDisabled) { return; }
                    
             var updatedOn = DateTimeOffset.UtcNow;
 

@@ -6,21 +6,39 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="I2c\Sensor\**" />
+	  <EmbeddedResource Remove="I2c\Sensor\**" />
+	  <None Remove="I2c\Sensor\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Compile Remove="Gpio\TempSensorDht.cs" />
 		<Compile Remove="Gpio\TempSensorProbe.cs" />
+		<Compile Remove="I2c\Vl53l0xGroup.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Include="I2c\Sensor\Bme680.cs" />
+	  <Compile Include="I2c\Sensor\Bmp280.cs" />
+	  <Compile Include="I2c\Sensor\Pmsx003.cs" />
+	  <Compile Include="I2c\Sensor\Scd40.cs" />
+	  <Compile Include="I2c\Sensor\Sen5x.cs" />
+	  <Compile Include="I2c\Sensor\Sht4x.cs" />
+	  <Compile Include="I2c\Sensor\Vl53l0x.cs" />
+	  <Compile Include="I2c\Sensor\Vl53l1x.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Iot.Device.Bindings" Version="3.2.0" />
 		<PackageReference Include="System.Device.Gpio" Version="3.2.0" />
 		<PackageReference Include="System.Text.Json" Version="9.0.0" />
-		<PackageReference Include="ThingsLibrary.Base" Version="0.1.5" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\Frameworks\Base\src\ThingsLibrary.Base\ThingsLibrary.csproj" />
+	  <ProjectReference Include="..\..\..\Schemas\src\csharp\ThingsLibrary.Schema.Library\ThingsLibrary.Schema.Library.csproj" />
 	  <ProjectReference Include="..\Iot.Device.Pmsx003\Iot.Device.Pmsx003.csproj" />
 	  <ProjectReference Include="..\Iot.Device.Sen5x\Iot.Device.Sen5x.csproj" />
-	  <ProjectReference Include="..\Iot.Device.Ssd13xx\src\Iot.Device.Ssd13xx\Iot.Device.Ssd13xx.csproj" />
 	</ItemGroup>
 
 </Project>
