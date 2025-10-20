@@ -19,10 +19,16 @@
         "garage_door_1": { "name": "Garage Door 1", "type": "sensor_bool", "tags": { "pin": "27", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},
         "garage_door_2": { "name": "Garage Door 2", "type": "sensor_bool", "tags": { "pin": "14", "disabled": "true", "normal": "Closed", "fault": "Open", "is_pullUp": "false", "is_pulldown": "false", "is_normally_low": "false" }},       
       
-        "bme688":  { "name": "BME688", "type": "sensor_bme680", "tags": { "device_id": "0x76", "disabled": "false" }},
-        "bmp280":  { "name": "BMP280", "type": "sensor_bmp280", "tags": { "device_id": "0x77", "disabled": "false" }},
-        "sht41":  { "name": "SHT41", "type": "sensor_sht4x", "tags": { "device_id": "0x44", "disabled": "false" }},
-        "scd40":  { "name": "SCD40", "type": "sensor_scd40", "tags": { "device_id": "0x62", "disabled": "false" }}        
+        "bme688":  { "name": "BME688", "type": "sensor_bme680", "tags": { "device_id": "0x76", "disabled": "true" }},
+        "bme280":  { "name": "BME280", "type": "sensor_bme280", "tags": { "device_id": "0x76", "disabled": "true" }},
+        "bmp280":  { "name": "BMP280", "type": "sensor_bmp280", "tags": { "device_id": "0x77", "disabled": "true" }},
+        "sht31":   { "name": "SHT31",  "type": "sensor_sht3x",  "tags": { "device_id": "0x44", "disabled": "true" }},
+        "sht41":   { "name": "SHT41",  "type": "sensor_sht4x",  "tags": { "device_id": "0x44", "disabled": "true" }},
+        "scd40":   { "name": "SCD40",  "type": "sensor_scd40",  "tags": { "device_id": "0x62", "disabled": "true" }},
+        "vl53l0x": { "name": "VL53L0x","type": "sensor_vl53l0x","tags": { "device_id": "0x29", "disabled": "true" }},
+
+        "sen55":   { "name": "SEN55",  "type": "sensor_sen5x",  "tags": { "device_id": "0x69", "disabled": "true" }},
+        "pmsx003": { "name": "PMSX003","type": "sensor_pmsx003","tags": { "device_id": "0x12", "disabled": "false" }}     
       }
     },
     "services": {
@@ -34,7 +40,7 @@
             "port": "1883",
             
             "user": "mark",
-            "password": "177370"
+            "password": ""
           }
         }
       }

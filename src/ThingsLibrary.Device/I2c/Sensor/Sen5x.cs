@@ -1,5 +1,4 @@
 ﻿using Iot.Device.Sen5x;
-using ThingsLibrary.Device.Sensor.Interfaces;
 
 namespace ThingsLibrary.Device.I2c.Sensor
 {
@@ -67,13 +66,13 @@ namespace ThingsLibrary.Device.I2c.Sensor
             // States
             this.States = new List<ISensorState>(8)
             {
-                {   this.Pm1 = new MassConcentrationState("PM 1.0", "pm1", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
-                {   this.Pm2_5 = new MassConcentrationState("PM 2.5", "pm2_5", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
-                {   this.Pm4 = new MassConcentrationState("PM 4.0", "pm4", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
-                {   this.Pm10 = new MassConcentrationState("PM 10.0", "pm10", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" } },
+                {   this.Pm1 = new MassConcentrationState("pm1", "PM 1.0", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
+                {   this.Pm2_5 = new MassConcentrationState("pm2_5", "PM 2.5", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
+                {   this.Pm4 = new MassConcentrationState("pm4", "PM 4.0", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
+                {   this.Pm10 = new MassConcentrationState("pm10", "PM 10.0", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" } },
 
-                {   this.VocIndex = new ParticleState("VOC", "voc", isImperial: isImperial) { UnitSymbol = string.Empty } },
-                {   this.NoxIndex = new ParticleState("NOx", "nox", isImperial: isImperial) { UnitSymbol = string.Empty } },
+                {   this.VocIndex = new ParticleState("voc", "VOC", isImperial: isImperial) { UnitSymbol = string.Empty } },
+                {   this.NoxIndex = new ParticleState("nox", "NOx", isImperial: isImperial) { UnitSymbol = string.Empty } },
 
                 {   this.TemperatureState = new TemperatureState(isImperial: isImperial) },
                 {   this.HumidityState = new HumidityState(isImperial: isImperial) },
@@ -87,13 +86,13 @@ namespace ThingsLibrary.Device.I2c.Sensor
             // States
             this.States = new List<ISensorState>(8)
             {
-                {   this.Pm1 = new MassConcentrationState("PM 1.0", "pm1", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
-                {   this.Pm2_5 = new MassConcentrationState("PM 2.5", "pm2_5", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
-                {   this.Pm4 = new MassConcentrationState("PM 4.0", "pm4", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
-                {   this.Pm10 = new MassConcentrationState("PM 10.0", "pm10", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" } },
+                {   this.Pm1 = new MassConcentrationState("pm1", "PM 1.0", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
+                {   this.Pm2_5 = new MassConcentrationState("pm2_5", "PM 2.5", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
+                {   this.Pm4 = new MassConcentrationState("pm4", "PM 4.0", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" }    },
+                {   this.Pm10 = new MassConcentrationState("pm10", "PM 10.0", isImperial: isImperial) { ValuePrecision = 1, UnitSymbol = "mcg/m3" } },
 
-                {   this.VocIndex = new ParticleState("VOC", "voc", isImperial: isImperial) { UnitSymbol = string.Empty } },
-                {   this.NoxIndex = new ParticleState("NOx", "nox", isImperial: isImperial) { UnitSymbol = string.Empty } },
+                {   this.VocIndex = new ParticleState("voc", "VOC", isImperial: isImperial) { UnitSymbol = string.Empty } },
+                {   this.NoxIndex = new ParticleState("nox", "NOx", isImperial: isImperial) { UnitSymbol = string.Empty } },
 
                 {   this.TemperatureState = new TemperatureState(isImperial: isImperial) },
                 {   this.HumidityState = new HumidityState(isImperial: isImperial) },

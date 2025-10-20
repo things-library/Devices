@@ -37,7 +37,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
             // States
             this.States = new List<ISensorState>()
             {
-                { this.DistanceState = new LengthState("Distance", "d", isImperial: isImperial) }
+                { this.DistanceState = new LengthState("d", "Distance", isImperial: isImperial) }
             };
         }
 
@@ -48,7 +48,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
             // States
             this.States = new List<ISensorState>()
             {
-                { this.DistanceState = new LengthState("Distance", "d", isImperial: isImperial) }
+                { this.DistanceState = new LengthState("d", "Distance", isImperial: isImperial) }
             };
         }
 

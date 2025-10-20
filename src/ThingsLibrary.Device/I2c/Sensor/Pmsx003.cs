@@ -97,22 +97,22 @@ namespace ThingsLibrary.Device.I2c.Sensor
             this.States = new List<ISensorState>(12)
             {   
                 // Standard Concentration States
-                {   this.StandardPm10 = new MassConcentrationState("Standard PM 1.0", "pm3_std", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
-                {   this.StandardPm25 = new MassConcentrationState("Standard PM 2.5", "pm2_5_std", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
-                {   this.StandardPm100 = new MassConcentrationState("Standard PM 10.0", "pm10_std", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.StandardPm10 = new MassConcentrationState("pm3_std", "Standard PM 1.0", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.StandardPm25 = new MassConcentrationState("pm2_5_std", "Standard PM 2.5", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.StandardPm100 = new MassConcentrationState("pm10_std", "Standard PM 10.0", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
                 
                 // Environment States 
-                {   this.EnvironmentPm10 = new MassConcentrationState("PM 1.0", "pm1", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
-                {   this.EnvironmentPm25 = new MassConcentrationState("PM 2.5", "pm2_5", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
-                {   this.EnvironmentPm100 = new MassConcentrationState("PM 10.0", "pm10", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.EnvironmentPm10 = new MassConcentrationState("pm1", "PM 1.0", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.EnvironmentPm25 = new MassConcentrationState("pm2_5", "PM 2.5", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.EnvironmentPm100 = new MassConcentrationState("pm10", "PM 10.0", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
                 
                 // Particle Counts
-                {   this.Particles03 = new ParticleState("Particles > 0.3 µm", "pm0_3ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles05 = new ParticleState("Particles > 0.5 µm", "pm0_5ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles10 = new ParticleState("Particles > 1.0 µm", "pm1ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles25 = new ParticleState("Particles > 2.5 µm", "pm2_5ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles50 = new ParticleState("Particles > 5.0 µm", "pm5ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles100 = new ParticleState("Particles > 10.0 µm", "pm10ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } }
+                {   this.Particles03 = new ParticleState("pm0_3ct", "Particles > 0.3 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles05 = new ParticleState("pm0_5ct", "Particles > 0.5 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles10 = new ParticleState("pm1ct", "Particles > 1.0 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles25 = new ParticleState("pm2_5ct", "Particles > 2.5 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles50 = new ParticleState("pm5ct", "Particles > 5.0 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles100 = new ParticleState("pm10ct", "Particles > 10.0 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } }
             };
         }
         public Pmsx003Sensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
@@ -123,22 +123,22 @@ namespace ThingsLibrary.Device.I2c.Sensor
             this.States = new List<ISensorState>(12)
             {   
                 // Standard Concentration States
-                {   this.StandardPm10 = new MassConcentrationState("Standard PM 1.0", "pm3_std", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
-                {   this.StandardPm25 = new MassConcentrationState("Standard PM 2.5", "pm2_5_std", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
-                {   this.StandardPm100 = new MassConcentrationState("Standard PM 10.0", "pm10_std", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.StandardPm10 = new MassConcentrationState("pm3_std", "Standard PM 1.0", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.StandardPm25 = new MassConcentrationState("pm2_5_std", "Standard PM 2.5", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.StandardPm100 = new MassConcentrationState("pm10_std", "Standard PM 10.0", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
                 
                 // Environment States 
-                {   this.EnvironmentPm10 = new MassConcentrationState("PM 1.0", "pm1", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
-                {   this.EnvironmentPm25 = new MassConcentrationState("PM 2.5", "pm2_5", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
-                {   this.EnvironmentPm100 = new MassConcentrationState("PM 10.0", "pm10", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.EnvironmentPm10 = new MassConcentrationState("pm1", "PM 1.0", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.EnvironmentPm25 = new MassConcentrationState("pm2_5", "PM 2.5", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
+                {   this.EnvironmentPm100 = new MassConcentrationState("pm10", "PM 10.0", isImperial: isImperial) { UnitSymbol = "mcg/m3" } },
                 
                 // Particle Counts
-                {   this.Particles03 = new ParticleState("Particles > 0.3 µm", "pm0_3ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles05 = new ParticleState("Particles > 0.5 µm", "pm0_5ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles10 = new ParticleState("Particles > 1.0 µm", "pm1ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles25 = new ParticleState("Particles > 2.5 µm", "pm2_5ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles50 = new ParticleState("Particles > 5.0 µm", "pm5ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
-                {   this.Particles100 = new ParticleState("Particles > 10.0 µm", "pm10ct", isImperial: isImperial) { UnitSymbol = "/0.1L" } }
+                {   this.Particles03 = new ParticleState("pm0_3ct", "Particles > 0.3 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles05 = new ParticleState("pm0_5ct", "Particles > 0.5 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles10 = new ParticleState("pm1ct", "Particles > 1.0 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles25 = new ParticleState("pm2_5ct", "Particles > 2.5 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles50 = new ParticleState("pm5ct", "Particles > 5.0 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } },
+                {   this.Particles100 = new ParticleState("pm10ct", "Particles > 10.0 µm", isImperial: isImperial) { UnitSymbol = "/0.1L" } }
             };
         }
 

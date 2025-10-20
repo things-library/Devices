@@ -114,8 +114,8 @@ namespace Device.Tester
                 {
                     if (sensor.IsDisabled || !sensor.IsInit) { continue; }
 
-                    sensor.FetchStates();
-
+                    if(!sensor.FetchStates()) { continue; }
+                    
                     Log.Information($"{sensor.ToTelemetryEvent(sensor.Key)}");
                 }
 

@@ -1,6 +1,6 @@
-﻿using System.IO.Ports;
-
-using Iot.Device.Pmsx003.Extensions;
+﻿using Iot.Device.Pmsx003.Extensions;
+using System.Buffers.Binary;
+using System.IO.Ports;
 using UnitsNet;
 
 namespace Iot.Device.Pmsx003
@@ -106,9 +106,14 @@ namespace Iot.Device.Pmsx003
             // Reference: https://cdn-shop.adafruit.com/product-files/4632/4505_PMSA003I_series_data_manual_English_V2.6.pdf
             //  Section 5, Register Definition
 
-            //this.I2cDevice.WriteByte((byte)0x00);
+            Span<Byte> data = new byte[2];
+            //BinaryPrimitives.WriteUInt16BigEndian(data, (ushort)cmd);
+            this.I2cDevice!.Write(data);
 
+            //this.I2cDevice!.WriteByte((byte)0x00);
             //_ = this.I2cDevice.ReadByte();
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(20));
 
             // read all at once since we are dealing with a checksum
             Span<byte> readBuffer = stackalloc byte[32];

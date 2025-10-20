@@ -19,10 +19,12 @@
 
 	<ItemGroup>
 	  <Compile Include="I2c\Sensor\Bme680.cs" />
+	  <Compile Include="I2c\Sensor\Bme280.cs" />
 	  <Compile Include="I2c\Sensor\Bmp280.cs" />
 	  <Compile Include="I2c\Sensor\Pmsx003.cs" />
 	  <Compile Include="I2c\Sensor\Scd40.cs" />
 	  <Compile Include="I2c\Sensor\Sen5x.cs" />
+	  <Compile Include="I2c\Sensor\Sht3x.cs" />
 	  <Compile Include="I2c\Sensor\Sht4x.cs" />
 	  <Compile Include="I2c\Sensor\Vl53l0x.cs" />
 	  <Compile Include="I2c\Sensor\Vl53l1x.cs" />

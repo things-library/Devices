@@ -7,17 +7,18 @@ using Iot.Device.Common;
 
 namespace ThingsLibrary.Device.I2c.Sensor
 {
-    public class Bmp280Sensor : Base.I2cSensor
+    public class Bme280Sensor : Base.I2cSensor
     {
-        public Bmp280 Device { get; set; }
+        public Bme280 Device { get; set; }
 
         public TemperatureState TemperatureState { get; init; }
+        public HumidityState HumidityState { get; set; }
         public PressureState PressureState { get; init; }
         public LengthState AltitudeState { get; init; }
 
         /// <inheritdoc/>
         /// <remarks>0x77 is default, 0x76 is secondary</remarks>
-        public Bmp280Sensor(I2cBus i2cBus, int id = 0x77, string key = "bmp280", string name = "BMP280", bool isImperial = false) : base(i2cBus, id, "sensor_bmp280", key, name, isImperial)
+        public Bme280Sensor(I2cBus i2cBus, int id = 0x77, string key = "bme280", string name = "BME280", bool isImperial = false) : base(i2cBus, id, "sensor_bmp280", key, name, isImperial)
         {
             this.MinReadInterval = 7; //157hz = 6.37ms
 
@@ -25,15 +26,16 @@ namespace ThingsLibrary.Device.I2c.Sensor
             this.States = new List<ISensorState>(3)
             {
                 { this.TemperatureState = new TemperatureState(isImperial: isImperial) },
+                { this.HumidityState = new HumidityState(isImperial: isImperial) },
                 { this.PressureState = new PressureState(isImperial: isImperial) },
-                { this.AltitudeState = new LengthState(name: "Altitude", key: "alt", isImperial: isImperial) { IsDisabled = true } }  //typically don't need altitude data
+                { this.AltitudeState = new LengthState(key: "alt", name: "Altitude", isImperial: isImperial) { IsDisabled = true } }  //typically don't need altitude data
             };
         }
 
         /// <inheritdoc/>        
-        public Bmp280Sensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
+        public Bme280Sensor(I2cBus i2cBus, string key, IItemDto settings, bool isImperial = false) : base(i2cBus, key, settings, isImperial)
         {
-            if (this.Type != "sensor_bmp280") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_bmp280' not '{this.Type}'."); }
+            if (this.Type != "sensor_bme280") { throw new ArgumentException($"Invalid settings data, expecting type 'sensor_bme280' not '{this.Type}'."); }
 
             this.MinReadInterval = 7; //157hz = 6.37ms
 
@@ -41,6 +43,7 @@ namespace ThingsLibrary.Device.I2c.Sensor
             this.States = new List<ISensorState>(3)
             {
                 { this.TemperatureState = new TemperatureState(isImperial: isImperial) },
+                { this.HumidityState = new HumidityState(isImperial: isImperial) },
                 { this.PressureState = new PressureState(isImperial: isImperial) },
                 { this.AltitudeState = new LengthState(name: "Altitude", key: "alt", isImperial: isImperial) { IsDisabled = true } }  //typically don't need altitude data
             };
@@ -52,8 +55,9 @@ namespace ThingsLibrary.Device.I2c.Sensor
             {
                 base.Init();
 
-                this.Device = new Bmp280(this.I2cDevice);
+                this.Device = new Bme280(this.I2cDevice);
                 this.Device.TemperatureSampling = Sampling.Standard;
+                this.Device.HumiditySampling = Sampling.HighResolution;
                 this.Device.PressureSampling = Sampling.Standard;
 
                 this.Device.FilterMode = Bmx280FilteringMode.X16;
@@ -94,6 +98,13 @@ namespace ThingsLibrary.Device.I2c.Sensor
                 if (readResult.Temperature is not null && !this.TemperatureState.IsDisabled)
                 {
                     this.TemperatureState.Update(readResult.Temperature.Value, updatedOn);
+                    isStateChanged = true;
+                }
+
+                // HUMIDITY
+                if (readResult.Humidity is not null && !this.HumidityState.IsDisabled)
+                {
+                    this.HumidityState.Update(readResult.Humidity.Value, updatedOn);
                     isStateChanged = true;
                 }
 

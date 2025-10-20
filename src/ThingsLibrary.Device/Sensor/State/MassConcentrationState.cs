@@ -15,7 +15,7 @@
             if (measurement is null) { return; }
 
             this.ParticleCount = measurement.Value;
-            this.Update(measurement.Value, updatedOn);
+            this.Update((double)measurement.Value.Value, updatedOn);
         }
 
 
